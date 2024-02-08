@@ -218,7 +218,7 @@ class ThorNX(ThorInteractionCount):
                     break  
 
             end_pos = path[-1]
-            self.controller.step(dict(action='TeleportFull', x=end_pos[0], y=end_pos[1], z=end_pos[2], rotation=end_pos[3], horizon=end_pos[4]))
+            self.controller.step(dict(action='TeleportFull', x=end_pos[0], y=end_pos[1], z=end_pos[2], rotation=end_pos[3], horizon=end_pos[4], standing=True))
 
         # padding
         step_infos = step_infos[:T]

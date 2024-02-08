@@ -8,6 +8,7 @@ import numbers
 from PIL import Image
 import itertools
 import ai2thor.controller
+from ai2thor.platform import CloudRendering
 
 class ThorEnv(gym.Env):
 
@@ -29,8 +30,7 @@ class ThorEnv(gym.Env):
 
         local_exe = None if self.config.ENV.LOCAL_EXE=='None' else self.config.ENV.LOCAL_EXE
         self.controller = ai2thor.controller.Controller(quality='Ultra',
-                                                        local_executable_path=local_exe,
-                                                        x_display=self.x_display)
+                                                        platform=CloudRendering)
 
     def seed(self, seed):
         self.rs = np.random.RandomState(seed)
@@ -129,7 +129,7 @@ class ThorEnv(gym.Env):
             x, y, z, rot, hor = self.agent_pose(self.state)
             if (x, y, z) not in self.reachable_positions:
                 gpos = min(self.reachable_positions, key=lambda p: (p[0]-x)**2 + (p[2]-z)**2)
-                self.controller.step(dict(action='TeleportFull', x=gpos[0], y=gpos[1], z=gpos[2], rotation=rot, horizon=hor))
+                self.controller.step(dict(action='TeleportFull', x=gpos[0], y=gpos[1], z=gpos[2], rotation=rot, horizon=hor, standing=True))
 
         return action_info
 
@@ -158,9 +158,9 @@ class ThorEnv(gym.Env):
         self.controller.reset(self.scene)
         self.controller.step(dict(action='Initialize', **self.init_params()))
         self.controller.step(dict(action='GetReachablePositions'))
-        self.reachable_positions = set([(pos['x'], pos['y'], pos['z']) for pos in self.state.metadata['reachablePositions']])
+        self.reachable_positions = set([(pos['x'], pos['y'], pos['z']) for pos in self.state.metadata['actionReturn']])
 
-        self.controller.step(dict(action='TeleportFull', x=0, y=0.9009991, z=2.25, rotation=180, horizon=0))
+        self.controller.step(dict(action='TeleportFull', x=0, y=0.9009991, z=2.25, rotation=180, horizon=0, standing=True))
         self.episode_id = 0
         return
 
@@ -186,12 +186,14 @@ class ThorEnv(gym.Env):
         self.randomize_objects()
 
         self.controller.step(dict(action='GetReachablePositions'))
-        reachable_positions = [(pos['x'], pos['y'], pos['z']) for pos in self.state.metadata['reachablePositions']]
+        if self.state.metadata['actionReturn'] is None:
+            print('Scene with Error =', scene)
+        reachable_positions = [(pos['x'], pos['y'], pos['z']) for pos in self.state.metadata['actionReturn']]
         
         init_rs = np.random.RandomState(self.episode_id)
         rot = init_rs.choice([i*self.rot_size_y for i in range(360//self.rot_size_y)])
         pos = reachable_positions[init_rs.randint(len(reachable_positions))]
-        self.controller.step(dict(action='TeleportFull', x=pos[0], y=pos[1], z=pos[2], rotation=rot, horizon=0))
+        self.controller.step(dict(action='TeleportFull', x=pos[0], y=pos[1], z=pos[2], rotation=rot, horizon=0, standing=True))
         
         self.reachable_positions = set(reachable_positions)
 
@@ -200,7 +202,8 @@ class ThorEnv(gym.Env):
         scene, episode = None, None
         
         if self.config.MODE == 'train':
-            scene = self.rs.choice(['FloorPlan%d'%idx for idx in range(6, 30+1)]) # 6 --> 30 = train. 1 --> 5 = test
+            train_scenes = ['FloorPlan201', 'FloorPlan202', 'FloorPlan203', 'FloorPlan204', 'FloorPlan205', 'FloorPlan206', 'FloorPlan207', 'FloorPlan208', 'FloorPlan209', 'FloorPlan210', 'FloorPlan211', 'FloorPlan212', 'FloorPlan213', 'FloorPlan214', 'FloorPlan215', 'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
+            scene = self.rs.choice(train_scenes) # 6 --> 30 = train. 1 --> 5 = test
 
         elif self.config.MODE == 'eval':
             if not hasattr(self, 'test_episodes'):
@@ -331,7 +334,7 @@ class ThorObjs(ThorEnv):
 
         act_params = None
         if target_obj['objectId'] is not None:
-            act_params = dict(action='PutObject', forceAction=True, objectId=self.inv_obj, receptacleObjectId=target_obj['objectId'])
+            act_params = dict(action='PutObject', forceAction=True, objectId=target_obj['objectId'])
 
         act_info = {'held_obj':self.inv_obj, 'target':target_obj, 'params':act_params}
 
