@@ -436,6 +436,57 @@ class ThorInteractionCount(ThorObjs):
         return obs
 
 
+class ThorInteractionCountComparison(ThorInteractionCount):
+    def __init__(self, config):
+        super().__init__(config)
+        self.movement_actions = ['forward', 'up', 'down', 'tright', 'tleft']
+        self.interactions = ['take', 'push', 'drop']
+        self.interaction_set = set(self.interactions)
+
+        self.state_count = collections.defaultdict(int)
+
+    def get_action_fns(self):
+        actions, action_fns = super().get_action_fns()
+        action_fns.update({
+            'take': self.take,
+            'push': self.push,
+            'drop': self.drop,
+        })
+        actions += ['take', 'push', 'drop']
+        return actions, action_fns
+
+    def drop(self, action):
+        act_params = None
+        target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
+        if self.inv_obj is not None:
+            act_params = dict(action='ThrowObject', forceAction=True, moveMagnitude=10.0)
+
+        act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
+
+        return act_info
+
+    def push(self, action):
+
+        obj_property = lambda obj: obj['pickupable'] and obj['moveable']
+        target_obj = self.get_target_obj(obj_property)
+
+        act_params = None
+        if target_obj['objectId'] is not None:
+            object_masses = {
+                obj["objectId"]: obj["mass"]
+                for obj in self.controller.last_event.metadata["objects"]
+            }
+            move_magnitude = (
+                str(int(200 * object_masses[target_obj["objectId"]])) 
+                if target_obj["objectId"] in object_masses else "400"
+            )
+            act_params = dict(action='PushObject', objectId=target_obj['objectId'], moveMagnitude=move_magnitude)
+
+        act_info = {'target':target_obj, 'params':act_params}
+
+        return act_info
+
+
 class ThorInteractionCycler(ThorInteractionCount):
     def __init__(self, config):
         super().__init__(config)

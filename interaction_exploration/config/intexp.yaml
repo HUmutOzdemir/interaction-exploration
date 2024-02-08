@@ -7,4 +7,4 @@ DATA:
   AUX_STD: 0.06
 
 ENV:
-  ENV_NAME: "ThorInteractionCount-v0"
+  ENV_NAME: "ThorInteractionCountComparison-v0"

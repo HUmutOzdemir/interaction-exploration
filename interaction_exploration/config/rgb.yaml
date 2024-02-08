@@ -3,4 +3,4 @@ MODEL:
   ENCODER: "RGBCNN"
 
 ENV:
-  ENV_NAME: "ThorInteractionCount-v0"
+  ENV_NAME: "ThorInteractionCountComparison-v0"
