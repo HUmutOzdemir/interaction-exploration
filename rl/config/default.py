@@ -92,7 +92,7 @@ _C.ENV.LOCAL_EXE = None # If multiple versions exist, specific path as above
 _C.ENV.OBS_SZ = 128
 _C.ENV.ROT_SIZE_X = 15
 _C.ENV.ROT_SIZE_Y = 30
-_C.ENV.FRAME_SIZE = 300
+_C.ENV.FRAME_SIZE = 128
 _C.ENV.NGRID = 5
 
 # -----------------------------------------------------------------------------

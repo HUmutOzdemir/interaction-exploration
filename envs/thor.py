@@ -202,7 +202,11 @@ class ThorEnv(gym.Env):
         scene, episode = None, None
         
         if self.config.MODE == 'train':
-            train_scenes = ['FloorPlan201', 'FloorPlan202', 'FloorPlan203', 'FloorPlan204', 'FloorPlan205', 'FloorPlan206', 'FloorPlan207', 'FloorPlan208', 'FloorPlan209', 'FloorPlan210', 'FloorPlan211', 'FloorPlan212', 'FloorPlan213', 'FloorPlan214', 'FloorPlan215', 'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
+            train_scenes = ['FloorPlan201', 'FloorPlan202', 'FloorPlan203', 'FloorPlan204', 'FloorPlan205', 
+                            'FloorPlan206', 'FloorPlan207', 'FloorPlan208', 'FloorPlan209', 'FloorPlan210', 
+                            'FloorPlan211', 'FloorPlan212', 'FloorPlan213', 'FloorPlan214', 'FloorPlan215', 
+                            'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 
+                            'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
             scene = self.rs.choice(train_scenes) # 6 --> 30 = train. 1 --> 5 = test
 
         elif self.config.MODE == 'eval':
