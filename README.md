@@ -47,8 +47,8 @@ python -m interaction_exploration.run \
     --mode train \
     SEED 0 TORCH_GPU_ID 0 X_DISPLAY :0 \
     ENV.NUM_STEPS 256 \
-    NUM_PROCESSES 16 \
-    CHECKPOINT_FOLDER interaction_exploration/cv/rgb/run0/ \
+    NUM_PROCESSES 8 \
+    CHECKPOINT_FOLDER interaction_exploration/cv/rgb/run_comparison/ \
 
 ```
 
@@ -59,8 +59,8 @@ python -m interaction_exploration.run \
     --mode train \
     SEED 0 TORCH_GPU_ID 0 X_DISPLAY :0 \
     ENV.NUM_STEPS 256 \
-    NUM_PROCESSES 16 \
-    CHECKPOINT_FOLDER interaction_exploration/cv/intexp/run0/ \
+    NUM_PROCESSES 8 \
+    CHECKPOINT_FOLDER interaction_exploration/cv/intexp/run_comparison/ \
     MODEL.BEACON_MODEL affordance_seg/cv/rgb_unet/epoch=39-val_loss=0.6737.ckpt
 ```
 Note: The segmentation model must be trained first. See the [README](affordance_seg/README.md) in `affordance_segmentation/`. tl;dr First train the baseline RGB policy, then extract a dataset using rollouts from the policy, then train the segmentation model.

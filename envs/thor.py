@@ -16,7 +16,7 @@ class ThorEnv(gym.Env):
         self.config = config
         self.x_display = config.X_DISPLAY
 
-        self.obs_sz = self.config.ENV.OBS_SZ # 80
+        self.obs_sz = self.config.ENV.OBS_SZ # 128
         self.rot_size_x = self.config.ENV.ROT_SIZE_X # 15
         self.rot_size_y = self.config.ENV.ROT_SIZE_Y # 30
         self.frame_sz = self.config.ENV.FRAME_SIZE # 300 (fixed)
@@ -453,21 +453,23 @@ class ThorInteractionCountComparison(ThorInteractionCount):
         self.state_count = collections.defaultdict(int)
 
     def get_action_fns(self):
-        actions, action_fns = super(ThorEnv, self).get_action_fns()
+        actions, action_fns = super(ThorObjs, self).get_action_fns()
         action_fns.update({
             action_type: lambda action: self.object_movement(action, action_type) 
-            for action_type in self.object_movement_actions
+            for action_type in ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
         })
         action_fns.update({
             action_type: lambda action: self.object_rotation(action, action_type) 
-            for action_type in self.object_rotation_actions
+            for action_type in ['rhyaw', 'rhpitch', 'rhroll']
         })
         action_fns.update({
             'take': self.take,
             'push': self.push,
             'drop': self.drop,
         })
-        actions += (self.object_movement_actions + self.object_rotation_actions + ['take', 'push', 'drop'])
+        actions += (['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
+                    + ['rhyaw', 'rhpitch', 'rhroll']
+                    + ['take', 'push', 'drop'])
         return actions, action_fns
     
     def object_movement(self, action, action_type):

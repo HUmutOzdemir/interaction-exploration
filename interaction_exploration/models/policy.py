@@ -20,7 +20,7 @@ class SimpleCNN(nn.Module):
                     nn.ReLU(True),
                     nn.Conv2d(64, 32, kernel_size=3, stride=1),
                     Flatten(),
-                    nn.Linear(32*6*6, hidden_size),
+                    nn.Linear(32*12*12, hidden_size),
                     nn.ReLU(True),
                     )
         self.layer_init()

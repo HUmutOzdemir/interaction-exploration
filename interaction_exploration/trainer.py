@@ -20,7 +20,7 @@ class RGBTrainer(VizTrainer):
         self.vis_encoder = vis_encoder
         self.mean = torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
         self.std = torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
-        self.img_sz = 80
+        self.img_sz = 128
 
         self.device = (
             torch.device("cuda", self.config.TORCH_GPU_ID)
@@ -104,7 +104,7 @@ class BeaconTrainer(RGBTrainer):
         return batch
 
     def augment_obs_space(self, obs_space):
-        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (7, 80, 80))
+        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (7, 128, 128))
         return obs_space
 
 from .models.policy import RandomPolicy
@@ -147,6 +147,6 @@ class SaliencyTrainer(RGBTrainer):
         return batch
 
     def augment_obs_space(self, obs_space):
-        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (1, 80, 80))
+        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (1, 128, 128))
         return obs_space
 
