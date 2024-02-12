@@ -440,26 +440,56 @@ class ThorInteractionCountComparison(ThorInteractionCount):
     def __init__(self, config):
         super().__init__(config)
         self.movement_actions = ['forward', 'up', 'down', 'tright', 'tleft']
+        self.object_movement_actions = ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
+        self.object_rotation_actions = ['rhyaw', 'rhpitch', 'rhroll']
+        self.movement_actions += (self.object_movement_actions + self.object_rotation_actions)
         self.interactions = ['take', 'push', 'drop']
         self.interaction_set = set(self.interactions)
 
         self.state_count = collections.defaultdict(int)
 
     def get_action_fns(self):
-        actions, action_fns = super().get_action_fns()
+        actions, action_fns = super(ThorEnv, self).get_action_fns()
+        action_fns.update({
+            action_type: lambda action: self.object_movement(action, action_type) 
+            for action_type in self.object_movement_actions
+        })
+        action_fns.update({
+            action_type: lambda action: self.object_rotation(action, action_type) 
+            for action_type in self.object_rotation_actions
+        })
         action_fns.update({
             'take': self.take,
             'push': self.push,
             'drop': self.drop,
         })
-        actions += ['take', 'push', 'drop']
+        actions += (self.object_movement_actions + self.object_rotation_actions + ['take', 'push', 'drop'])
         return actions, action_fns
+    
+    def object_movement(self, action, action_type):
+        act_params = None
+        target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
+        if self.inv_obj is not None:
+            act_params = dict(action=f'MoveHeldObject{action_type[2:].title()}', moveMagnitude=0.1)
 
+        act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
+        return act_info
+
+    def object_rotation(self, action, action_type):
+        act_params = None
+        target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
+        if self.inv_obj is not None:
+            act_params = dict(action=f'RotateHeldObject')
+            act_params[action_type[2:]] = 30
+
+        act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
+        return act_info
+    
     def drop(self, action):
         act_params = None
         target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
         if self.inv_obj is not None:
-            act_params = dict(action='ThrowObject', forceAction=True, moveMagnitude=10.0)
+            act_params = dict(action='DropHandObject')
 
         act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
 

@@ -2,4 +2,5 @@
 *.pyc
 __pycache__/
 
-
+interaction_exploration/cv/*
+affordance_seg/cv/*
