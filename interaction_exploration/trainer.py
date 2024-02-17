@@ -104,7 +104,7 @@ class BeaconTrainer(RGBTrainer):
         return batch
 
     def augment_obs_space(self, obs_space):
-        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (7, 128, 128))
+        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (7, 80, 80))
         return obs_space
 
 from .models.policy import RandomPolicy
@@ -147,6 +147,6 @@ class SaliencyTrainer(RGBTrainer):
         return batch
 
     def augment_obs_space(self, obs_space):
-        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (1, 128, 128))
+        obs_space.spaces['aux'] = spaces.Box(-np.inf, np.inf, (1, 80, 80))
         return obs_space
 

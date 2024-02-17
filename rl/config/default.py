@@ -84,15 +84,15 @@ _C.MODEL.BEACON_MODEL = ""
 # ENVIRONMENT
 # -----------------------------------------------------------------------------
 _C.ENV = CN()
-_C.ENV.NUM_ENV_STEPS = 1000000
-_C.ENV.NUM_STEPS = 256
+_C.ENV.NUM_ENV_STEPS = 2000000
+_C.ENV.NUM_STEPS = 512
 _C.ENV.ENV_NAME = "ThorInteractionCount-v0"
 #_C.ENV.LOCAL_EXE = "/path/to/thor-Linux64-202003231453/thor-Linux64-202003231453" # 2.3.8
 _C.ENV.LOCAL_EXE = None # If multiple versions exist, specific path as above
 _C.ENV.OBS_SZ = 128
 _C.ENV.ROT_SIZE_X = 15
 _C.ENV.ROT_SIZE_Y = 30
-_C.ENV.FRAME_SIZE = 128
+_C.ENV.FRAME_SIZE = 300
 _C.ENV.NGRID = 5
 
 # -----------------------------------------------------------------------------

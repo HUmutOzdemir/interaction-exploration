@@ -207,6 +207,7 @@ class ThorEnv(gym.Env):
                             'FloorPlan211', 'FloorPlan212', 'FloorPlan213', 'FloorPlan214', 'FloorPlan215', 
                             'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 
                             'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
+            #train_scenes = ['FloorPlan%d'%idx for idx in range(6, 30+1)]
             scene = self.rs.choice(train_scenes) # 6 --> 30 = train. 1 --> 5 = test
 
         elif self.config.MODE == 'eval':
@@ -444,9 +445,9 @@ class ThorInteractionCountComparison(ThorInteractionCount):
     def __init__(self, config):
         super().__init__(config)
         self.movement_actions = ['forward', 'up', 'down', 'tright', 'tleft']
-        self.object_movement_actions = ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
-        self.object_rotation_actions = ['rhyaw', 'rhpitch', 'rhroll']
-        self.movement_actions += (self.object_movement_actions + self.object_rotation_actions)
+        #self.object_movement_actions = ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
+        #self.object_rotation_actions = ['rhyaw', 'rhpitch', 'rhroll']
+        #self.movement_actions += (self.object_movement_actions + self.object_rotation_actions)
         self.interactions = ['take', 'push', 'drop']
         self.interaction_set = set(self.interactions)
 
@@ -454,22 +455,23 @@ class ThorInteractionCountComparison(ThorInteractionCount):
 
     def get_action_fns(self):
         actions, action_fns = super(ThorObjs, self).get_action_fns()
-        action_fns.update({
-            action_type: lambda action: self.object_movement(action, action_type) 
-            for action_type in ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
-        })
-        action_fns.update({
-            action_type: lambda action: self.object_rotation(action, action_type) 
-            for action_type in ['rhyaw', 'rhpitch', 'rhroll']
-        })
+        #action_fns.update({
+        #    action_type: lambda action: self.object_movement(action, action_type) 
+        #    for action_type in ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
+        #})
+        #action_fns.update({
+        #    action_type: lambda action: self.object_rotation(action, action_type) 
+        #    for action_type in ['rhyaw', 'rhpitch', 'rhroll']
+        #})
         action_fns.update({
             'take': self.take,
             'push': self.push,
-            'drop': self.drop,
+            'drop': self.drop_v2,
         })
-        actions += (['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
-                    + ['rhyaw', 'rhpitch', 'rhroll']
-                    + ['take', 'push', 'drop'])
+        #actions += (['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
+        #            + ['rhyaw', 'rhpitch', 'rhroll']
+        #            + ['take', 'push', 'drop'])
+        actions += ['take', 'push', 'drop']
         return actions, action_fns
     
     def object_movement(self, action, action_type):
@@ -496,6 +498,17 @@ class ThorInteractionCountComparison(ThorInteractionCount):
         target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
         if self.inv_obj is not None:
             act_params = dict(action='DropHandObject')
+
+        act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
+
+        return act_info
+    
+    def drop_v2(self, action):
+    
+        act_params = None
+        target_object = self.state.metadata['inventoryObjects'][0] if self.inv_obj else None
+        if self.inv_obj is not None:
+            act_params = dict(action='ThrowObject', forceAction=True, moveMagnitude=10.0)
 
         act_info = {'held_obj':self.inv_obj, 'target':target_object, 'params':act_params}
 

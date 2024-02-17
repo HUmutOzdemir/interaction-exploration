@@ -31,7 +31,7 @@ class ThorBeaconsFixedScale(ThorInteractionCount):
         self.history = []
         self.beacons = []
         self.dist_thresh =  2e-1 # TODO: yacs
-        self.mask_sz = 80 # TODO: yacs
+        self.mask_sz = 128 # TODO: yacs
 
         cam_params = (self.mask_sz//2,)*4 # fx, fy, cx, cy
         self.projector = map_util.CameraProjection(cam_params, self.mask_sz, self.rot_size_x, self.rot_size_y)
@@ -308,7 +308,7 @@ class ThorBeaconsObjects(ThorInteractionCount):
         super().__init__(config)
         self.history = []
         self.beacons = []
-        self.mask_sz = 80
+        self.mask_sz = 128
 
     def compile_history(self, state):
         hist = {}
