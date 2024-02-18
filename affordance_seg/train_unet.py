@@ -87,8 +87,8 @@ def viz(args, sz=300):
     net.cuda().eval()
 
     # color coded interactions
-    interactions = ['take', 'put', 'open' ,'close', 'toggle-on', 'toggle-off', 'slice']
-    viz_actions = [('put', 'green'), ('open', 'pink'), ('toggle-on', 'blue'), ('take', 'orange')]
+    interactions = ['take', 'push'] #['take', 'put', 'open' ,'close', 'toggle-on', 'toggle-off', 'slice']
+    viz_actions = [('take', 'green'), ('push', 'pink')] #[('put', 'green'), ('open', 'pink'), ('toggle-on', 'blue'), ('take', 'orange')]
     channel_to_color = {interactions.index(act):color for act, color in viz_actions}
     color_overlay = ColorOverlay(sz)
 

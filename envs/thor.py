@@ -444,11 +444,11 @@ class ThorInteractionCount(ThorObjs):
 class ThorInteractionCountComparison(ThorInteractionCount):
     def __init__(self, config):
         super().__init__(config)
-        self.movement_actions = ['forward', 'up', 'down', 'tright', 'tleft']
+        self.movement_actions = ['forward', 'up', 'down', 'tright', 'tleft', 'drop']
         #self.object_movement_actions = ['mhahead', 'mhback', 'mhleft', 'mhright', 'mhup', 'mhdown']
         #self.object_rotation_actions = ['rhyaw', 'rhpitch', 'rhroll']
         #self.movement_actions += (self.object_movement_actions + self.object_rotation_actions)
-        self.interactions = ['take', 'push', 'drop']
+        self.interactions = ['take', 'push']
         self.interaction_set = set(self.interactions)
 
         self.state_count = collections.defaultdict(int)

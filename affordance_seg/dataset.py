@@ -72,7 +72,7 @@ class AffordanceDataset:
 
     def __init__(self, out_sz):
         self.out_sz = out_sz 
-        self.interactions = ['take', 'put', 'open', 'close', 'toggle-on', 'toggle-off', 'slice']
+        self.interactions = ['take', 'push'] #['take', 'put', 'open', 'close', 'toggle-on', 'toggle-off', 'slice']
         self.min_pix = 100 # threshold pixels to include (100/80*80 = 1.5%) 
         self.entries = []
 
