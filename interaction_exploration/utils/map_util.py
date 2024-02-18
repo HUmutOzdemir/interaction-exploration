@@ -71,7 +71,7 @@ class CameraProjection:
     def image_to_world(self, agent_pose, depth_inputs):
 
         agent_pose = torch.Tensor(agent_pose)
-        depth_inputs = torch.from_numpy(depth_inputs).unsqueeze(0) # depth in meters (1, 300, 300)
+        depth_inputs = torch.from_numpy(copy.deepcopy(depth_inputs)).unsqueeze(0) # depth in meters (1, 300, 300)
         depth_inputs = F.interpolate(depth_inputs.unsqueeze(0), self.out_size, mode='bilinear', align_corners=True)[0]
 
         agent_pose = agent_pose.unsqueeze(0)
@@ -113,7 +113,7 @@ class CameraProjection:
         P = torch.bmm(R, P) + P0 # (B, 3, 3) * (B, 3, h*w) + (B, 3, 1) --> (B, 3, h*w)
         P = rearrange(P, 'b p (h w) -> b p h w', h=imh, w=imw)
 
-        return 
+        return P
 
 
 # code below modified from: https://github.com/allenai/ai2thor/issues/124#issuecomment-473017391
