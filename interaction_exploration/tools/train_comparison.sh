@@ -5,5 +5,5 @@ python -m interaction_exploration.run \
     TORCH_GPU_ID 0 \
     X_DISPLAY :0 \
     ENV.NUM_STEPS 512 \
-    NUM_PROCESSES 8 \
+    NUM_PROCESSES 16 \
     CHECKPOINT_FOLDER interaction_exploration/cv/rgb/run_comparison/
