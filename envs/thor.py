@@ -194,7 +194,6 @@ class ThorEnv(gym.Env):
         rot = init_rs.choice([i*self.rot_size_y for i in range(360//self.rot_size_y)])
         pos = reachable_positions[init_rs.randint(len(reachable_positions))]
         self.controller.step(dict(action='TeleportFull', x=pos[0], y=pos[1], z=pos[2], rotation=rot, horizon=0, standing=True))
-        print ('INITIAL TELEPORT ACTION: %s episode %s'%(scene, episode))
         
         self.reachable_positions = set(reachable_positions)
 
@@ -221,7 +220,7 @@ class ThorEnv(gym.Env):
                             'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 
                             'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
             scene = self.rs.choice(train_scenes) # 6 --> 30 = train. 1 --> 5 = test
-            print ('INIT: %s episode %s'%(scene, episode))
+            print ('INIT:', scene)
         
         self.init_scene_and_agent(scene=scene, episode=episode)
 
