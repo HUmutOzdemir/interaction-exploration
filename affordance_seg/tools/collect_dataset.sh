@@ -6,7 +6,7 @@ for GPU in 0; do
             --out-dir affordance_seg/data/rgb/ \
             NUM_PROCESSES 8 \
             LOAD interaction_exploration/cv/rgb/run_comparison/ckpt.24.pth \
-            EVAL.DATASET affordance_seg/data/episode_splits/episode_split_{$GPU}_splitted/episode_split_$SPLIT.json \
+            EVAL.DATASET affordance_seg/data/episode_splits/episode_split_${GPU}_splitted/episode_split_$SPLIT.json \
             ENV.NUM_STEPS 256 \
             TORCH_GPU_ID 0 \
             X_DISPLAY :0 \
