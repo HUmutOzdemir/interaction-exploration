@@ -48,11 +48,11 @@ class UNet(pl.LightningModule):
         pred_act, pred_fs = preds['act'], preds['fs'] # (B, 2, 7, H, W), (B, 2, 7, H, W)
 
         # affordibility
-        act_probs = [nn.Softmax2d()(pred_act[:, :, ch]) for ch in range(7)]
+        act_probs = [nn.Softmax2d()(pred_act[:, :, ch]) for ch in range(2)]
         act_probs = torch.stack(act_probs, 2) # (B, 2, 7, 300, 300)
 
         # interactibility
-        fs_probs = [nn.Softmax2d()(pred_fs[:, :, ch]) for ch in range(7)]
+        fs_probs = [nn.Softmax2d()(pred_fs[:, :, ch]) for ch in range(2)]
         fs_probs = torch.stack(fs_probs, 2) # (B, 2, 7, 300, 300)
 
         pred_idx = act_probs[:, 1] * fs_probs[:, 0]
