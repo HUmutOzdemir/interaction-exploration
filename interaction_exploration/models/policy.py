@@ -78,7 +78,7 @@ class RGBSaliencyTwoStream(TwoStreamNetwork):
 
 class RGBAffordanceTwoStream(TwoStreamNetwork):
     def __init__(self, observation_space, hidden_size):
-        super().__init__(observation_space, hidden_size, b1_inchannels=3, b2_inchannels=7)
+        super().__init__(observation_space, hidden_size, b1_inchannels=3, b2_inchannels=2)
 
 
 class PolicyNetwork(Policy):
