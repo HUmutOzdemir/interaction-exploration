@@ -16,7 +16,7 @@ class UNet(pl.LightningModule):
         super().__init__()
         self.args = args
         self.nout = 4
-        self.unet = smp.Unet('resnet18', encoder_weights='imagenet', classes=7*self.nout, encoder_depth=3, decoder_channels=(128, 64, 32))
+        self.unet = smp.Unet('resnet18', encoder_weights='imagenet', classes=2*self.nout, encoder_depth=3, decoder_channels=(128, 64, 32))
         for name, param in self.unet.named_parameters():
             if name.startswith('encoder'):
                 param.requires_grad = False
