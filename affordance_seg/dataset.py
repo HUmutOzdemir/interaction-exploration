@@ -118,7 +118,11 @@ class AffordanceDataset:
 
     # split train and val sets (80:20)
     def split_entries(self, entries):
-        scenes = [f'FloorPlan{idx}' for idx in range(6, 31)]
+        scenes = ['FloorPlan201', 'FloorPlan202', 'FloorPlan203', 'FloorPlan204', 'FloorPlan205', 
+                'FloorPlan206', 'FloorPlan207', 'FloorPlan208', 'FloorPlan209', 'FloorPlan210', 
+                'FloorPlan211', 'FloorPlan212', 'FloorPlan213', 'FloorPlan214', 'FloorPlan215', 
+                'FloorPlan216', 'FloorPlan217', 'FloorPlan218', 'FloorPlan219', 'FloorPlan220', 
+                'FloorPlan221', 'FloorPlan222', 'FloorPlan223', 'FloorPlan224', 'FloorPlan225']
         train_scenes, val_scenes = train_test_split(scenes, test_size=0.2, random_state=10)
         train_scenes, val_scenes = set(train_scenes), set(val_scenes)     
         train_data = [entry for entry in entries if entry['info']['scene'] in train_scenes]
@@ -126,7 +130,7 @@ class AffordanceDataset:
         return train_data, val_data
 
     # Extract training data from K episodes, uniformly distributed across scenes
-    def populate_dset(self, data_dir, K=2000):
+    def populate_dset(self, data_dir, K=500):
         
         episodes = list(glob.glob(f'{data_dir}/*.npz'))
         N = len(episodes)
@@ -243,7 +247,7 @@ class AffordanceDataset:
 
 def viz(args, sz=150):
 
-    dset = AffordanceDataset(80)
+    dset = AffordanceDataset(128)
     dset.load_entries(args.data_dir)
     dset.set_mode('val')
     np.random.shuffle(dset.data)

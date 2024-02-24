@@ -94,7 +94,7 @@ class UNet(pl.LightningModule):
         return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
 
     def prepare_data(self):
-        dset = AffordanceDataset(out_sz=80)
+        dset = AffordanceDataset(out_sz=128)
         dset.load_entries(self.args.data_dir)
         self.trainset = copy.deepcopy(dset).set_mode('train')
         self.valset = copy.deepcopy(dset).set_mode('val')

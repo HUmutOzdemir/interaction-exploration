@@ -74,7 +74,7 @@ class ColorOverlay:
 def viz(args, sz=300):
 
     # create dataset
-    dset = AffordanceDataset(out_sz=80)
+    dset = AffordanceDataset(out_sz=128)
     dset.load_entries(args.data_dir)
     dset.set_mode('val')
 
@@ -108,7 +108,7 @@ def viz(args, sz=300):
 
         # Predictions
         with torch.no_grad():
-            frame = F.interpolate(frame.unsqueeze(0), 80, mode='bilinear', align_corners=True)[0]
+            frame = F.interpolate(frame.unsqueeze(0), 128, mode='bilinear', align_corners=True)[0]
             preds = net.get_preds(frame.cuda().unsqueeze(0), resize=sz)
             preds = {k:v[0].cpu() for k,v in preds.items()}
             preds = {k:resize(v, sz) for k,v in preds.items()}
@@ -137,7 +137,7 @@ def viz(args, sz=300):
 
 def mean_stdev_stats(args):
 
-    dset = AffordanceDataset(out_sz=80)
+    dset = AffordanceDataset(out_sz=128)
     dset.load_examples(args.data_dir)
     dset.set_mode('train')
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
 
     if not os.path.exists(f'{args.data_dir}/seg_data.npz'):
-        dset = AffordanceDataset(out_sz=80)
+        dset = AffordanceDataset(out_sz=128)
         dset.populate_dset(f'{args.data_dir}/episodes/')
         dset.save_entries(args.data_dir)
 
