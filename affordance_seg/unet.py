@@ -64,7 +64,7 @@ class UNet(pl.LightningModule):
 
         bin_wt = self.class_wts.to(preds_fs.device) # (2, 7)
         loss_act = []
-        for ch in range(7):
+        for ch in range(2):
             loss =  F.cross_entropy(preds_act[:, :, ch], masks[:, ch].long(), ignore_index=2, weight=bin_wt[:, ch]) 
             loss_act.append(loss)
         loss_act = sum(loss_act)/len(loss_act)
