@@ -88,7 +88,7 @@ class UNet(pl.LightningModule):
         return {'val_loss': loss}
 
     def validation_epoch_end(self, outputs):
-        avg_loss = torch.cat([x['val_loss'] for x in outputs]).mean()
+        avg_loss = torch.hstack([x['val_loss'] for x in outputs]).mean()
         tensorboard_logs = {'val_loss': avg_loss}
         print (f'AVERAGE VAL LOSS = {avg_loss.item()}')
         return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
