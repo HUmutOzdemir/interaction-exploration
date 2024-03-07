@@ -1,4 +1,3 @@
-# %%
 import torch.multiprocessing as mp
 import random
 import numpy as np
@@ -18,7 +17,6 @@ from interaction_exploration.models.policy import *
 from rl.common.utils import logger
 from rl.common.env_utils import construct_envs, get_env_class
 
-# %%
 def get_gt_affordance(last_event, size=(2, 128, 128)):
     affordance_types = [['pickupable'], ['moveable', 'pickupable']]
 
@@ -42,8 +40,7 @@ def get_gt_affordance(last_event, size=(2, 128, 128)):
     
     return gt_affordances
 
-# %%
-def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None, _threshold = 0.5, _affordance_types = ['pickupable', 'moveable_pickupable'], size = (128, 128)):
+def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None, _threshold = 0, _affordance_types = ['pickupable', 'moveable_pickupable'], size = (128, 128)):
 
     metrics = {
         "IoU": JaccardIndex(2),
@@ -101,7 +98,6 @@ def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None,
 
     return scores
 
-# %%
 def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test_recurrent_hidden_states, prev_actions, not_done_masks, stats_episodes):
     infos = None
     affordance_scores = [None for _ in range(trainer.envs.num_envs)]
@@ -135,7 +131,6 @@ def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test
 
         for i in range(trainer.envs.num_envs):
             last_event = trainer.envs.call_at(i, 'last_event')
-            affordance_est = batch['aux'][i] * 0.06 + 0.04
             affordance_scores[i] = calculate_affordance_evaluation_metrics(last_event, batch['aux'][i], affordance_scores[i])
 
         not_done_masks = torch.tensor(
@@ -168,7 +163,6 @@ def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test
                     )
                 ] = episode_stats
 
-# %%
 def execute_evaluation(trainer, ppo_cfg, num_episodes):
     stats_episodes = dict()
 
@@ -222,63 +216,53 @@ def execute_evaluation(trainer, ppo_cfg, num_episodes):
 
     return aggregated_stats
 
-# %%
-mp.set_start_method('spawn')
+if __name__ == '__main__':
 
-# %%
-config = 'interaction_exploration/config/intexp.yaml'
-options = [
-    'ENV.NUM_STEPS', '512',
-    'NUM_PROCESSES', '4',
-    'EVAL.DATASET', 'interaction_exploration/data/test_episodes_K_16.json',
-    'TORCH_GPU_ID', '0',
-    'X_DISPLAY', ':0',
-    'CHECKPOINT_FOLDER', 'models/eval',
-    'LOAD', 'interaction_exploration/cv/intexp/run_comparison_last/ckpt.48.pth',
-    'MODEL.BEACON_MODEL', 'interaction_exploration/cv/intexp/run_comparison_last/unet/epoch=15-val_loss=0.5353.ckpt'
-]
+    mp.set_start_method('spawn')
+    config = 'interaction_exploration/config/intexp.yaml'
+    options = [
+        'ENV.NUM_STEPS', '512',
+        'NUM_PROCESSES', '2',
+        'EVAL.DATASET', 'interaction_exploration/data/test_episodes_K_16.json',
+        'TORCH_GPU_ID', '0',
+        'X_DISPLAY', ':0',
+        'CHECKPOINT_FOLDER', 'models/eval',
+        'LOAD', 'models/ckpt.48.pth',
+        'MODEL.BEACON_MODEL', 'models/epoch=15-val_loss=0.5353.ckpt'
+    ]
 
-config = get_config(config, opts=options)
-config
+    config = get_config(config, opts=options)
 
-# %%
-random.seed(config.SEED)
-np.random.seed(config.SEED)
+    random.seed(config.SEED)
+    np.random.seed(config.SEED)
 
-trainer = get_trainer(config)
+    trainer = get_trainer(config)
 
-# %%
-trainer.init_viz()
-test_episodes = ['FloorPlan226', 'FloorPlan227', 'FloorPlan228', 'FloorPlan229', 'FloorPlan230']
+    trainer.init_viz()
+    test_episodes = ['FloorPlan226', 'FloorPlan227', 'FloorPlan228', 'FloorPlan229', 'FloorPlan230']
 
-trainer.config.defrost()
-trainer.config.ENV.TEST_EPISODES = test_episodes
-trainer.config.ENV.TEST_EPISODE_COUNT = len(test_episodes)
-trainer.config.MODE = 'train'
-trainer.config.freeze()
+    trainer.config.defrost()
+    trainer.config.ENV.TEST_EPISODES = test_episodes
+    trainer.config.ENV.TEST_EPISODE_COUNT = len(test_episodes)
+    trainer.config.MODE = 'train'
+    trainer.config.freeze()
 
-checkpoint_path = trainer.config.LOAD
-ckpt_dict = trainer.load_checkpoint(checkpoint_path, map_location="cpu")
-ppo_cfg = trainer.config.RL.PPO
+    checkpoint_path = trainer.config.LOAD
+    ckpt_dict = trainer.load_checkpoint(checkpoint_path, map_location="cpu")
+    ppo_cfg = trainer.config.RL.PPO
 
-logger.info(f"env config: {trainer.config}")
+    logger.info(f"env config: {trainer.config}")
 
-# %%
-trainer.envs = construct_envs(trainer.config, get_env_class(trainer.config.ENV.ENV_NAME))
-trainer._setup_actor_critic_agent(ppo_cfg)
+    trainer.envs = construct_envs(trainer.config, get_env_class(trainer.config.ENV.ENV_NAME))
+    trainer._setup_actor_critic_agent(ppo_cfg)
 
-# %%
-logger.info(checkpoint_path)
-logger.info(f"num_steps: {trainer.config.ENV.NUM_STEPS}")
+    logger.info(checkpoint_path)
+    logger.info(f"num_steps: {trainer.config.ENV.NUM_STEPS}")
 
-trainer.agent.load_state_dict(ckpt_dict["state_dict"])
-trainer.actor_critic = trainer.agent.actor_critic
+    trainer.agent.load_state_dict(ckpt_dict["state_dict"])
+    trainer.actor_critic = trainer.agent.actor_critic
 
-# %%
-results = execute_evaluation(trainer, ppo_cfg, 100)
+    results = execute_evaluation(trainer, ppo_cfg, 50)
 
-# %%
-with open(f"{config.CHECKPOINT_FOLDER}/results.json", "w") as outfile:
-    json.dump(results, outfile, indent=4, sort_keys=False)
-
-
+    with open(f"{config.CHECKPOINT_FOLDER}/results.json", "w") as outfile:
+        json.dump(results, outfile, indent=4, sort_keys=False)
