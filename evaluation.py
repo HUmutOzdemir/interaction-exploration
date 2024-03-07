@@ -43,7 +43,7 @@ def get_gt_affordance(last_event, size=(2, 128, 128)):
     return gt_affordances
 
 # %%
-def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None, _threshold = 0, _affordance_types = ['pickupable', 'moveable_pickupable'], size = (128, 128)):
+def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None, _threshold = 0.5, _affordance_types = ['pickupable', 'moveable_pickupable'], size = (128, 128)):
 
     metrics = {
         "IoU": JaccardIndex(2),
@@ -135,6 +135,7 @@ def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test
 
         for i in range(trainer.envs.num_envs):
             last_event = trainer.envs.call_at(i, 'last_event')
+            affordance_est = batch['aux'][i] * 0.06 + 0.04
             affordance_scores[i] = calculate_affordance_evaluation_metrics(last_event, batch['aux'][i], affordance_scores[i])
 
         not_done_masks = torch.tensor(
@@ -227,14 +228,14 @@ mp.set_start_method('spawn')
 # %%
 config = 'interaction_exploration/config/intexp.yaml'
 options = [
-    'ENV.NUM_STEPS', '256',
-    'NUM_PROCESSES', '2',
+    'ENV.NUM_STEPS', '512',
+    'NUM_PROCESSES', '4',
     'EVAL.DATASET', 'interaction_exploration/data/test_episodes_K_16.json',
     'TORCH_GPU_ID', '0',
     'X_DISPLAY', ':0',
     'CHECKPOINT_FOLDER', 'models/eval',
-    'LOAD', 'models/ckpt.48.pth',
-    'MODEL.BEACON_MODEL', 'models/epoch=04-val_loss=0.4979.ckpt'
+    'LOAD', 'interaction_exploration/cv/intexp/run_comparison_last/ckpt.48.pth',
+    'MODEL.BEACON_MODEL', 'interaction_exploration/cv/intexp/run_comparison_last/unet/epoch=15-val_loss=0.5353.ckpt'
 ]
 
 config = get_config(config, opts=options)
@@ -274,7 +275,7 @@ trainer.agent.load_state_dict(ckpt_dict["state_dict"])
 trainer.actor_critic = trainer.agent.actor_critic
 
 # %%
-results = execute_evaluation(trainer, ppo_cfg, 3)
+results = execute_evaluation(trainer, ppo_cfg, 100)
 
 # %%
 with open(f"{config.CHECKPOINT_FOLDER}/results.json", "w") as outfile:
