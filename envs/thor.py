@@ -516,7 +516,7 @@ class ThorInteractionCountComparison(ThorInteractionCount):
 
     def push(self, action):
 
-        obj_property = lambda obj: obj['pickupable'] and obj['moveable']
+        obj_property = lambda obj: obj['pickupable'] or obj['moveable']
         target_obj = self.get_target_obj(obj_property)
 
         act_params = None
