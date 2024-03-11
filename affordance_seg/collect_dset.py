@@ -91,7 +91,7 @@ class CollectAffTrainer(RGBTrainer):
         test_episodes = json.load(open(config.EVAL.DATASET))
         self.config.defrost()
         self.config.ENV.TEST_EPISODES = test_episodes
-        self.config.ENV.TEST_EPISODE_COUNT = 4
+        self.config.ENV.TEST_EPISODE_COUNT = len(test_episodes)
         self.config.freeze()
 
         # [!!] Load checkpoint, create dir to save rollouts to, and copy checkpoint for reference
