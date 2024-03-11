@@ -3,6 +3,7 @@
 import torch
 # crashes sometimes without this for some reason
 torch.multiprocessing.set_sharing_strategy('file_system')
+import gc
 
 import json
 import random
@@ -246,6 +247,8 @@ class CollectAffTrainer(RGBTrainer):
 
                     # [!!] save episode data 
                     self.save_episode(infos[i]['traj_masks'])
+                    del observations, rewards, dones, infos
+                    gc.collect()
 
             (
                 self.envs,
