@@ -173,8 +173,7 @@ class CollectAffTrainer(RGBTrainer):
 
                 prev_actions.copy_(actions)
 
-            if iteration % self.config.ENV.NUM_STEPS != 0:
-                outputs = self.envs.step([a[0].item() for a in actions])
+            outputs = self.envs.step([a[0].item() for a in actions])
 
             observations, rewards, dones, infos = [
                 list(x) for x in zip(*outputs)
@@ -205,7 +204,7 @@ class CollectAffTrainer(RGBTrainer):
                     envs_to_pause.append(i)
 
                 # episode ended
-                if not_done_masks[i].item() == 0 or iteration == self.config.ENV.NUM_STEPS:
+                if not_done_masks[i].item() == 0:
 
                     episode_stats = dict()
                     episode_stats["reward"] = current_episode_reward[i].item()
