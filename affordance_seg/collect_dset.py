@@ -205,7 +205,7 @@ class CollectAffTrainer(RGBTrainer):
                     envs_to_pause.append(i)
 
                 # episode ended
-                if not_done_masks[i].item() == 0:
+                if not_done_masks[i].item() == 0 or iteration == self.config.ENV.NUM_STEPS:
 
                     episode_stats = dict()
                     episode_stats["reward"] = current_episode_reward[i].item()
