@@ -173,7 +173,30 @@ class CollectAffTrainer(RGBTrainer):
 
                 prev_actions.copy_(actions)
 
-            outputs = self.envs.step([a[0].item() for a in actions])
+            try:
+                outputs = self.envs.step([a[0].item() for a in actions])
+                pbar.set_description(f'Iteration {iteration} | Actions {[a[0].item() for a in actions]}')
+            except:
+                print('[RESET] Error on Environments')
+                pbar.set_description(f'Iteration {iteration} | RESET')
+                observations = self.envs.reset()
+                batch = self.batch_obs(observations, self.device)
+
+                current_episode_reward = torch.zeros(
+                    self.envs.num_envs, 1, device=self.device
+                )
+                test_recurrent_hidden_states = torch.zeros(
+                    self.actor_critic.net.num_recurrent_layers,
+                    self.config.NUM_PROCESSES,
+                    ppo_cfg.hidden_size,
+                    device=self.device,
+                )
+                prev_actions = torch.zeros(
+                    self.config.NUM_PROCESSES, 1, device=self.device, dtype=torch.long
+                )
+                not_done_masks = torch.zeros(
+                    self.config.NUM_PROCESSES, 1, device=self.device
+                )
 
             observations, rewards, dones, infos = [
                 list(x) for x in zip(*outputs)
