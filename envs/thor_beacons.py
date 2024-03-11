@@ -227,12 +227,16 @@ class ThorBeaconsFixedScale(ThorInteractionCount):
         history = history or self.history
 
         if len(history)==0 or len(self.beacons)==0:
+            print('History is empty!!')
             return torch.zeros(1, 3, out_sz, out_sz), torch.zeros(1, len(self.interactions), 2, out_sz, out_sz).byte(), torch.zeros(1, 5), info
 
+        print('Update Beacon Coordinates!!')
         # each hist in history will have different beacons
         history = self.update_beacon_coordinates(history) # 4.2s
 
+        print('Stack Points!!')
         P = torch.stack([hist['P'] for hist in history], 0) # (T=128, 3, H, W)) --> 511 x 300*300*3
+        print('P Shape =', P.shape)
 
         # get wdist to every beacon (across time), and maintain a pt-->index map
         uniq_beacon_pts = set()
@@ -240,6 +244,7 @@ class ThorBeaconsFixedScale(ThorInteractionCount):
             uniq_beacon_pts |= set([beacon['pt'] for beacon in hist['beacons']])
         uniq_beacon_pts = [(0, 0, 0)] if len(uniq_beacon_pts)==0 else sorted(uniq_beacon_pts)
         wdist_pt_to_idx = {pt:idx for idx, pt in enumerate(uniq_beacon_pts)}
+        print('wdist is calculated!!')
 
         B = torch.Tensor(uniq_beacon_pts) # (N, 3)
         P_flat = rearrange(P, 't p h w -> (t h w) p') # (THW, 3) torch.Size([45990000, 3])
@@ -266,6 +271,7 @@ class ThorBeaconsFixedScale(ThorInteractionCount):
             beacon_history.append(hist)
 
         if len(beacon_history)==0:
+            print('Empty Beacon History!!')
             return torch.zeros(1, 3, out_sz, out_sz), torch.zeros(1, len(self.interactions), 2, out_sz, out_sz).byte(), torch.zeros(1, 5), info
 
 
@@ -401,7 +407,10 @@ class ThorBeaconsObjects(ThorInteractionCount):
         frames = torch.from_numpy(frames).float().permute(0, 3, 1, 2)/255
         poses = torch.Tensor([hist['pose'] for hist in beacon_history])
         frames, beacon_mask = resize_results(frames, beacon_mask, out_sz)
-            
+        print('Frames = ', frames.shape)
+        print('poses = ', poses.shape)
+        print('beacon_mask = ', beacon_mask.shape)
+
         return frames, beacon_mask, poses, info
 
 
