@@ -173,7 +173,8 @@ class CollectAffTrainer(RGBTrainer):
 
                 prev_actions.copy_(actions)
 
-            outputs = self.envs.step([a[0].item() for a in actions])
+            if iteration % self.config.ENV.NUM_STEPS != 0:
+                outputs = self.envs.step([a[0].item() for a in actions])
 
             observations, rewards, dones, infos = [
                 list(x) for x in zip(*outputs)
