@@ -8,7 +8,7 @@ for GPU in 0; do
             NUM_PROCESSES 1 \
             LOAD interaction_exploration/cv/rgb/run_comparison/ckpt.48.pth \
             EVAL.DATASET affordance_seg/data/episode_splits/episode_split_0_splitted/episode_split_0.json \
-            ENV.NUM_STEPS 256 \
+            ENV.NUM_STEPS 128 \
             TORCH_GPU_ID 0 \
             X_DISPLAY :0 \
             ENV.ENV_NAME ThorBeaconsFixedScaleComparison-v0 \

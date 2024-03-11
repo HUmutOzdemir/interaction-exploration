@@ -65,15 +65,12 @@ class CollectAffTrainer(RGBTrainer):
         scene, episode_id = episode['info']['scene'], episode['info']['episode']
         out_dir = f'{self.config.OUT_DIR}/episodes/'
 
-        foldername = f'{scene}_{episode_id}_data'
-        os.makedirs(os.path.join(out_dir, foldername), exist_ok=True)
-        for i, (frame, mask, pose) in enumerate(zip(episode['frames'], episode['masks'], episode['poses'])):
-            filename = f'{i}.npz'
-            np.savez_compressed(os.path.join(out_dir, foldername, filename),
-                                frame=frame,
-                                mask=mask,
-                                pose=pose,
-                                )
+        filename = f'{scene}_{episode_id}_data.npz'
+        np.savez_compressed(os.path.join(out_dir, filename),
+                            frames=episode['frames'],
+                            masks=episode['masks'],
+                            poses=episode['poses'],
+                            )
         torch.save({'info': episode['info'],
                     }, os.path.join(out_dir, f'{scene}_{episode_id}_info.pth'))
 
@@ -94,7 +91,7 @@ class CollectAffTrainer(RGBTrainer):
         test_episodes = json.load(open(config.EVAL.DATASET))
         self.config.defrost()
         self.config.ENV.TEST_EPISODES = test_episodes
-        self.config.ENV.TEST_EPISODE_COUNT = 2
+        self.config.ENV.TEST_EPISODE_COUNT = 4
         self.config.freeze()
 
         # [!!] Load checkpoint, create dir to save rollouts to, and copy checkpoint for reference
