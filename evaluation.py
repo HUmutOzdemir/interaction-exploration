@@ -98,7 +98,7 @@ def calculate_affordance_evaluation_metrics(last_event, estimation, scores=None,
 
     return scores
 
-def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test_recurrent_hidden_states, prev_actions, not_done_masks, stats_episodes):
+def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test_recurrent_hidden_states, prev_actions, not_done_masks, stats_episodes, frame_stats):
     infos = None
     affordance_scores = [None for _ in range(trainer.envs.num_envs)]
     for step in range(ppo_cfg.num_steps):
@@ -162,9 +162,16 @@ def execute_single_episode(trainer, ppo_cfg, batch, current_episode_reward, test
                         current_episodes[i]['episode_id'],
                     )
                 ] = episode_stats
+                frame_stats[
+                    (
+                        current_episodes[i]['scene_id'],
+                        current_episodes[i]['episode_id'],
+                    )
+                ] = affordance_scores[i]
 
 def execute_evaluation(trainer, ppo_cfg, num_episodes):
     stats_episodes = dict()
+    frame_stats = dict()
 
     for _ in tqdm(range(num_episodes)):
         observations = trainer.envs.reset()
@@ -196,7 +203,8 @@ def execute_evaluation(trainer, ppo_cfg, num_episodes):
             test_recurrent_hidden_states, 
             prev_actions, 
             not_done_masks, 
-            stats_episodes
+            stats_episodes,
+            frame_stats
         )
 
     # Log info so far
@@ -214,14 +222,14 @@ def execute_evaluation(trainer, ppo_cfg, num_episodes):
         logger.info(f"Average episode {k}: {v['mean']:.4f} ({num_episodes} episodes)")
         logger.info(f"episode {k} Std: {v['std']:.4f} ({num_episodes} episodes)")
 
-    return aggregated_stats
+    return aggregated_stats, stats_episodes, frame_stats
 
 if __name__ == '__main__':
 
     mp.set_start_method('spawn')
     config = 'interaction_exploration/config/intexp.yaml'
     options = [
-        'ENV.NUM_STEPS', '512',
+        'ENV.NUM_STEPS', '256',
         'NUM_PROCESSES', '2',
         'EVAL.DATASET', 'interaction_exploration/data/test_episodes_K_16.json',
         'TORCH_GPU_ID', '0',
@@ -262,7 +270,13 @@ if __name__ == '__main__':
     trainer.agent.load_state_dict(ckpt_dict["state_dict"])
     trainer.actor_critic = trainer.agent.actor_critic
 
-    results = execute_evaluation(trainer, ppo_cfg, 50)
+    aggregated_stats, stats_episodes, frame_stats = execute_evaluation(trainer, ppo_cfg, 2)
 
-    with open(f"{config.CHECKPOINT_FOLDER}/results.json", "w") as outfile:
-        json.dump(results, outfile, indent=4, sort_keys=False)
+    with open(f"{config.CHECKPOINT_FOLDER}/aggregated_stats.json", "w") as outfile:
+        json.dump(aggregated_stats, outfile, indent=4, sort_keys=False)
+
+    with open(f"{config.CHECKPOINT_FOLDER}/stats_episodes.json", "w") as outfile:
+        json.dump(stats_episodes, outfile, indent=4, sort_keys=False)
+
+    with open(f"{config.CHECKPOINT_FOLDER}/frame_stats.json", "w") as outfile:
+        json.dump(frame_stats, outfile, indent=4, sort_keys=False)
