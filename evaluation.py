@@ -237,7 +237,7 @@ if __name__ == '__main__':
         'X_DISPLAY', ':0',
         'CHECKPOINT_FOLDER', 'models/eval',
         'LOAD', 'models/ckpt.48.pth',
-        'MODEL.BEACON_MODEL', ' models/epoch=05-val_loss=0.7779.ckpt'
+        'MODEL.BEACON_MODEL', 'models/epoch=05-val_loss=0.7779.ckpt'
     ]
 
     config = get_config(config, opts=options)
