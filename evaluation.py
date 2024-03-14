@@ -8,6 +8,7 @@ import skimage.transform as st
 from torchmetrics import Accuracy, CohenKappa, F1Score, JaccardIndex, Precision, Recall
 from collections import Counter
 import json
+import pickle
 
 from interaction_exploration.config import get_config
 from interaction_exploration.run import get_trainer
@@ -18,7 +19,7 @@ from rl.common.utils import logger
 from rl.common.env_utils import construct_envs, get_env_class
 
 def get_gt_affordance(last_event, size=(2, 128, 128)):
-    affordance_types = [['pickupable'], ['moveable', 'pickupable']]
+    affordance_types = [['moveable', 'pickupable'], ['pickupable']]
 
     gt_affordances = np.zeros((2, 300, 300), dtype=np.float32)
     for obj in last_event.metadata["objects"]:
@@ -230,13 +231,13 @@ if __name__ == '__main__':
     config = 'interaction_exploration/config/intexp.yaml'
     options = [
         'ENV.NUM_STEPS', '256',
-        'NUM_PROCESSES', '2',
+        'NUM_PROCESSES', '1',
         'EVAL.DATASET', 'interaction_exploration/data/test_episodes_K_16.json',
         'TORCH_GPU_ID', '0',
         'X_DISPLAY', ':0',
         'CHECKPOINT_FOLDER', 'models/eval',
         'LOAD', 'models/ckpt.48.pth',
-        'MODEL.BEACON_MODEL', 'models/epoch=15-val_loss=0.5353.ckpt'
+        'MODEL.BEACON_MODEL', ' models/epoch=05-val_loss=0.7779.ckpt'
     ]
 
     config = get_config(config, opts=options)
@@ -270,13 +271,13 @@ if __name__ == '__main__':
     trainer.agent.load_state_dict(ckpt_dict["state_dict"])
     trainer.actor_critic = trainer.agent.actor_critic
 
-    aggregated_stats, stats_episodes, frame_stats = execute_evaluation(trainer, ppo_cfg, 2)
+    aggregated_stats, stats_episodes, frame_stats = execute_evaluation(trainer, ppo_cfg, 50)
 
     with open(f"{config.CHECKPOINT_FOLDER}/aggregated_stats.json", "w") as outfile:
         json.dump(aggregated_stats, outfile, indent=4, sort_keys=False)
 
-    with open(f"{config.CHECKPOINT_FOLDER}/stats_episodes.json", "w") as outfile:
-        json.dump(stats_episodes, outfile, indent=4, sort_keys=False)
+    with open(f"{config.CHECKPOINT_FOLDER}/stats_episodes.pkl", "wb") as outfile:
+        pickle.dump(stats_episodes, outfile)
 
-    with open(f"{config.CHECKPOINT_FOLDER}/frame_stats.json", "w") as outfile:
-        json.dump(frame_stats, outfile, indent=4, sort_keys=False)
+    with open(f"{config.CHECKPOINT_FOLDER}/frame_stats.pkl", "wb") as outfile:
+        pickle.dump(frame_stats, outfile)

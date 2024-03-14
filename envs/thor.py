@@ -241,7 +241,8 @@ class ThorEnv(gym.Env):
         pass
 
     def close(self):
-        self.controller.stop()
+        #self.controller.stop()
+        pass
 
 class ThorObjs(ThorEnv):
 
